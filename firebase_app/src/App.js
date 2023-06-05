@@ -8,6 +8,7 @@ import {
   getDoc,
   getDocs,
   updateDoc,
+  deleteDoc,
 } from "firebase/firestore";
 
 import "./app.css";
@@ -99,6 +100,18 @@ function App() {
       });
   }
 
+  async function excluirPost(id) {
+    const docRef = doc(db, "posts", id);
+
+    await deleteDoc(docRef)
+      .then(() => {
+        alert("Dados excluído com sucesso.");
+      })
+      .catch((error) => {
+        console.log("Gerou um erro ao adicionar" + error);
+      });
+  }
+
   return (
     <div>
       <h1>React project + Firebase</h1>
@@ -133,7 +146,11 @@ function App() {
               <li key={post.id}>
                 <span>ID: {post.id}</span> <br />
                 <span>Titulo: {post.titulo} </span> <br />
-                <span>Autor: {post.autor}</span> <br /> <br />
+                <span>Autor: {post.autor}</span> <br />
+                <button onClick={() => excluirPost(post.id)}>
+                  Excluir post
+                </button>{" "}
+                <br /> <br />
               </li>
             );
           })}
