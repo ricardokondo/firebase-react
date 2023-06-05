@@ -1,12 +1,21 @@
 import { db } from "./firebaseConnection";
 import { useState } from "react";
-import { doc, setDoc, collection, addDoc, getDoc } from "firebase/firestore";
+import {
+  doc,
+  setDoc,
+  collection,
+  addDoc,
+  getDoc,
+  getDocs,
+} from "firebase/firestore";
 
 import "./app.css";
 
 function App() {
   const [titulo, setTitulo] = useState("");
   const [autor, setAutor] = useState("");
+
+  const [posts, setPosts] = useState([]);
 
   async function handleAdd() {
     /* Maneira de se adicionar informações de maneira estática
@@ -37,6 +46,7 @@ function App() {
   }
 
   async function buscarPost() {
+    /* Busca simples retornando somente 1 dados no qual eu insiro o valor 
     const postRef = doc(db, "posts", "gdySjr5e8Yu6BdNot9eJ");
 
     await getDoc(postRef)
@@ -47,6 +57,25 @@ function App() {
       })
       .catch((error) => {
         console.log("Gerou um erro ao buscar" + error);
+      });
+      */
+    const postsRef = collection(db, "posts");
+    await getDocs(postsRef)
+      .then((snapshot) => {
+        let lista = [];
+
+        snapshot.forEach((doc) => {
+          lista.push({
+            id: doc.id,
+            titulo: doc.data().titulo,
+            autor: doc.data().autor,
+          });
+        });
+
+        setPosts(lista);
+      })
+      .catch((error) => {
+        console.log("DEU ALGUM ERRO AO BUSCAR");
       });
   }
 
@@ -71,6 +100,17 @@ function App() {
 
         <button onClick={handleAdd}>Cadastrar</button>
         <button onClick={buscarPost}>Buscar post</button>
+
+        <ul>
+          {posts.map((post) => {
+            return (
+              <li key={post.id}>
+                <span>Titulo: {post.titulo} </span> <br />
+                <span>Autor: {post.autor}</span> <br /> <br />
+              </li>
+            );
+          })}
+        </ul>
       </div>
     </div>
   );
