@@ -16,6 +16,7 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
+  onAuthStateChanged,
 } from "firebase/auth";
 
 import "./app.css";
@@ -52,6 +53,28 @@ function App() {
     }
 
     loadPosts();
+  }, []);
+
+  useEffect(() => {
+    async function checkLogin() {
+      onAuthStateChanged(auth, (user) => {
+        if (user) {
+          //se tem usuário logado ele entra aqui
+          console.log(user);
+          setUser(true);
+          setUserDetail({
+            uid: user.uid,
+            email: user.email,
+          });
+        } else {
+          // não possui usuário logado
+          setUser(false);
+          setUserDetail({});
+        }
+      });
+    }
+
+    checkLogin();
   }, []);
 
   async function handleAdd() {
