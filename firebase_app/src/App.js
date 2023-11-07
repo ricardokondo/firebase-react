@@ -12,6 +12,7 @@ import {
   onSnapshot,
 } from "firebase/firestore";
 
+// import relacionando com o firebase auth que é responsável pela autenticação do usuário no sistema
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -25,6 +26,7 @@ function App() {
   const [titulo, setTitulo] = useState("");
   const [autor, setAutor] = useState("");
   const [idPost, setIdPost] = useState("");
+  const [idade, setIdade] = useState("");
 
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
@@ -37,6 +39,7 @@ function App() {
   useEffect(() => {
     async function loadPosts() {
       // Verifica em tempo real com o banco e retorna as informações de maneira automática
+      // onSnapshot é um listener que fica escutando as alterações no banco de dados e retorna as informações em tempo real
       const unsub = onSnapshot(collection(db, "posts"), (snapshot) => {
         let listaPost = [];
 
@@ -45,6 +48,7 @@ function App() {
             id: doc.id,
             titulo: doc.data().titulo,
             autor: doc.data().autor,
+            idade: doc.data().idade,
           });
         });
 
@@ -56,6 +60,7 @@ function App() {
   }, []);
 
   useEffect(() => {
+    // Esta função verifica se o usuário está logado ou não no sistema e retorna true ou false
     async function checkLogin() {
       onAuthStateChanged(auth, (user) => {
         if (user) {
@@ -94,11 +99,13 @@ function App() {
     await addDoc(collection(db, "posts"), {
       titulo: titulo,
       autor: autor,
+      idade: idade,
     })
       .then(() => {
         console.log("Dados registrados no banco");
         setTitulo("");
         setAutor("");
+        setIdade("");
       })
       .catch((error) => {
         console.log("Gerou um erro ao adicionar" + error);
@@ -129,6 +136,7 @@ function App() {
             id: doc.id,
             titulo: doc.data().titulo,
             autor: doc.data().autor,
+            idade: doc.data().idade,
           });
         });
 
@@ -145,12 +153,14 @@ function App() {
     await updateDoc(docRef, {
       titulo: titulo,
       autor: autor,
+      idade: idade,
     })
       .then(() => {
         console.log("Dados atualizado");
         setIdPost("");
         setTitulo("");
         setAutor("");
+        setIdade("");
       })
       .catch((error) => {
         console.log("Gerou um erro ao adicionar" + error);
@@ -169,6 +179,7 @@ function App() {
       });
   }
 
+  // Função para cadastrar um novo usuário no sistema utilizando o firebase auth (autenticação) e o firebase firestore (banco de dados)
   async function novoUsuario() {
     await createUserWithEmailAndPassword(auth, email, senha)
       .then((value) => {
@@ -274,6 +285,13 @@ function App() {
           value={autor}
           onChange={(event) => setAutor(event.target.value)}
         />
+        <label>Idade: </label>
+        <textarea
+          type="text"
+          placeholder="Idade"
+          value={idade}
+          onChange={(event) => setIdade(event.target.value)}
+        />
         <button onClick={handleAdd}>Cadastrar</button>
         <button onClick={buscarPost}>Buscar post</button> <br />
         <button onClick={editarPost}>Atualizar post</button>
@@ -284,6 +302,7 @@ function App() {
                 <span>ID: {post.id}</span> <br />
                 <span>Titulo: {post.titulo} </span> <br />
                 <span>Autor: {post.autor}</span> <br />
+                <span>Idade: {post.idade}</span> <br />
                 <button onClick={() => excluirPost(post.id)}>
                   Excluir post
                 </button>{" "}
